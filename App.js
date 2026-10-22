@@ -3,7 +3,9 @@ import {StyleSheet, Text, View, TouchableOpacity, FlatList, Button} from 'react-
 import InputAndButton from "./ui/InputAndButton";
 import Message from "./ui/Message";
 import { useState } from "react";
-import axios from 'axios';
+import axios from "axios";
+
+const MESSAGES_URL = "http://10.10.52.212:8888/API/messages.php";
 
 export default function App() {
   //let messages = [{
@@ -55,8 +57,29 @@ export default function App() {
 
   }
 
-  function handlePromise(){
+  async function loadPosts() {
+    try {
+      const token = process.env.EXPO_PUBLIC_API_TOKEN;
+      const response = await axios.get(MESSAGES_URL, {
+        headers: token ? {Authorization: "Bearer " + token} : {},
+      });
+      const apiMessages = Array.isArray(response.data)
+        ? response.data
+        : response.data.items;
 
+      if (!Array.isArray(apiMessages)) {
+        throw new Error("La risposta dell'API non contiene una lista di messaggi");
+      }
+
+      setMessages(apiMessages.map((message) => ({
+        id: message.id,
+        name: message.name ?? message.username ?? "Utente",
+        text: message.text ?? message.content ?? message.message ?? "",
+        date: message.date ?? message.creation_date ?? message.created_at ?? Date.now(),
+      })));
+    } catch (error) {
+      console.error("Errore durante il caricamento dei messaggi:", error);
+    }
   }
 
   return (
@@ -70,7 +93,7 @@ export default function App() {
       <View style={styles.userRow}>
         <Text style={styles.textUser}>Utente: Dema</Text>
         <View style={styles.textContainer}>
-          <Button style={styles.button} onPress={handlePromise} title={"Scarica"} />
+          <Button style={styles.button} onPress={loadPosts} title={"Scarica"} />
         </View>
 
           <View style={styles.logoutButtonWrapper}>
