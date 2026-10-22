@@ -8,7 +8,7 @@ $json = file_get_contents('php://input');
 $postData = json_decode($json, true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $dbConnector = new DbConnector ('localhost', 'root', 'root', 'message_board_db');
+    $dbConnector = new DbConnector ('localhost', 'root', 'root', 'itsumbria_coding');
     $statement = $dbConnector->prepare('SELECT * FROM users WHERE username = :username;');
     $statement->bindParam(':username', $postData['username']);
     $statement->execute();

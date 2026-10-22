@@ -1,16 +1,16 @@
 import {StyleSheet, View} from 'react-native';
 import HomeScreen from './ui/HomeScreen';
-
+import LoginScreen from "./ui/LoginScreen";
 export default function App() {
-  return (
-    <View style={styles.appContainer}>
-      <HomeScreen />
-    </View>
-  );
-}
+  const auth = false;
 
-const styles = StyleSheet.create({
-  appContainer: {
-    flex: 1,
-  },
-});
+  if (auth) {
+    return (
+        <HomeScreen></HomeScreen>
+    );
+  } else {
+  return (
+        <LoginScreen></LoginScreen>
+  );
+  }
+}
