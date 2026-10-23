@@ -1,7 +1,7 @@
 <?php
 require 'functions.php';
 require_once '../DbConnector.php';
-$dbConnector = new DbConnector ('localhost', 'root', 'root', 'message_board_db');
+$dbConnector = new DbConnector ('localhost', 'root', 'root', 'itsumbria_coding');
 
 $headers = getallheaders();
 
@@ -28,13 +28,13 @@ if(isset($_GET["page"]) && is_numeric($_GET["page"]) && $_GET["page"] >= 1) {
 $limit =10;
 $start_from = ($page-1) * $limit;
 
-$statement = $dbConnector->prepare('SELECT *, post.id as post_id FROM post JOIN users ON post.user_id = users.id WHERE post.deleted_at is NULL order by post.publish_date DESC LIMIT :start_from,:limit;');
+$statement = $dbConnector->prepare('SELECT *, posts.id as post_id FROM posts JOIN users ON posts.user_id = users.id WHERE posts.deletion_date is NULL order by posts.creation_date DESC LIMIT :start_from,:limit;');
 $statement->bindParam(':start_from', $start_from, PDO::PARAM_INT);
 $statement->bindParam(':limit', $limit, PDO::PARAM_INT);
 $statement->execute();
 $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $dbConnector->prepare('SELECT COUNT(id) AS total_posts FROM post WHERE post.deleted_at is NULL');
+$stmt = $dbConnector->prepare('SELECT COUNT(id) AS total_posts FROM posts WHERE posts.deletion_date is NULL');
 $stmt->execute();
 $total_posts = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -44,7 +44,7 @@ foreach ($results as $row) {
     $print[] = [
            'id' => $row['post_id'],
             'content' => $row['content'],
-            'creation_date' => strtotime($row['publish_date']),
+            'creation_date' => strtotime($row['creation_date']),
             'user_id' => $row['user_id'],
             'username' => $row['username']
     ];

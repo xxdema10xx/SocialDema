@@ -22,8 +22,8 @@ $postData = json_decode($json, true);
 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $dbConnector = new DbConnector('localhost', 'root', 'root', 'message_board_db');
-    $statement = $dbConnector->prepare('UPDATE post SET deleted_at = NOW() WHERE id = :id AND user_id = :user_id');
+    $dbConnector = new DbConnector('localhost', 'root', 'root', 'itsumbria_coding');
+    $statement = $dbConnector->prepare('UPDATE posts SET deletion_date = NOW() WHERE id = :id AND user_id = :user_id');
     $statement->bindParam('id', $postData['post_id']);
     $statement->bindParam('user_id', $userId);
 

@@ -23,8 +23,8 @@ $timestamp = time();
 $date = date('Y-m-d H:i:s', $timestamp);
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $dbConnector = new DbConnector('localhost', 'root', 'root', 'message_board_db');
-    $statement = $dbConnector->prepare('INSERT INTO post (content, user_id, publish_date)
+    $dbConnector = new DbConnector('localhost', 'root', 'root', 'itsumbria_coding');
+    $statement = $dbConnector->prepare('INSERT INTO posts (content, user_id, creation_date)
                                                     VALUES (
                                                         :userContent,
                                                         :userId,

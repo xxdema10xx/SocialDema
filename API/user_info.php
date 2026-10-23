@@ -17,7 +17,7 @@ if ($headers['Authorization']) {
     exit;
 }
 
-    $dbConnector = new DbConnector('localhost', 'root', 'root', 'message_board_db');
+    $dbConnector = new DbConnector('localhost', 'root', 'root', 'itsumbria_coding');
     $statement = $dbConnector->prepare('SELECT id, username FROM users WHERE id = :userId;');
     $statement->bindParam(':userId', $userId);
     $statement->execute();

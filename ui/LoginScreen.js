@@ -7,9 +7,14 @@ export default function LoginScreen({}) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
+    // Mac (MAMP)
+    // const LOGIN_URL = "http://10.10.52.212:8888/API/login.php";
+    // Windows (Laragon)
+    const LOGIN_URL = "http://192.168.1.38/SocialDema/API/login.php";
+
     function handleLogin() {
         axios
-            .post("http://10.10.52.212:8888/API/login.php", { username: username, password: password})
+            .post(LOGIN_URL, { username: username, password: password})
             .then((response) => {
                 console.log(response.data);
             })

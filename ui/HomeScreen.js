@@ -5,7 +5,10 @@ import axios from 'axios';
 import InputAndButton from './InputAndButton';
 import Message from './Message';
 
-const MESSAGES_URL = 'http://10.10.52.212:8888/API/messages.php';
+// Mac (MAMP)
+// const MESSAGES_URL = 'http://10.10.52.212:8888/API/messages.php';
+// Windows (Laragon)
+const MESSAGES_URL = 'http://192.168.1.38/SocialDema/API/messages.php';
 
 export default function HomeScreen() {
   const [messages, setMessages] = useState([{
