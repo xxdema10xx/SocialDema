@@ -1,48 +1,56 @@
-import {View, Text, StyleSheet, Button} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
+import AppButton from './AppButton';
+import {colors, cardShadow} from './theme';
 
 export default function Message({username, messageText, timeStamp, editButton, deleteButton, onDelete}) {
     const dateObj = timeStamp instanceof Date ? timeStamp : new Date(timeStamp > 1e12 ? timeStamp : timeStamp * 1000);
     return (
-        <View style={styles.messageContainer}>
-            <View style={styles.message}>
-                <View style={styles.borderMessage}>
-                    <Text>{username}</Text>
-                </View>
-                <View style={styles.borderMessage}>
-                    <Text>{messageText}</Text>
-                </View>
-                <View>
-                    <Text style={styles.borderMessage}>{dateObj.toLocaleString()}</Text>
-                </View>
+        <View style={styles.card}>
+            <Text style={styles.username}>{username}</Text>
 
-                <View style={{gap: 10, flexDirection: 'row', marginTop: 3}}>
-                    <Button style={styles.messageContainer} title={editButton} color="green"/>
-                    <Button style={styles.messageContainer} title={deleteButton} onPress={() => onDelete && onDelete()} color="red"/>
+            <Text style={styles.text}>{messageText}</Text>
+
+            <View style={styles.footer}>
+                <View style={styles.actions}>
+                    <AppButton title={editButton} variant="text" />
+                    <AppButton title={deleteButton} variant="danger" onPress={() => onDelete && onDelete()} />
                 </View>
+                <Text style={styles.date}>{dateObj.toLocaleString()}</Text>
             </View>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    messageContainer: {
-        backgroundColor: 'lightblue',
-        padding: 5,
-        borderWidth: 3,
-        borderColor: 'lightblue',
-        borderRadius: 4,
+    card: {
+        backgroundColor: colors.card,
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 10,
+        ...cardShadow,
     },
-    message: {
-        backgroundColor: 'white',
-        padding: 5,
-        borderWidth: 3,
-        borderColor: 'lightblue',
-        marginBottom: 3,
+    username: {
+        marginBottom: 6,
+        fontSize: 16,
+        fontWeight: '700',
+        color: colors.text,
     },
-    borderMessage:{
-        borderColor:'lightblue',
-        borderBottomWidth: 3,
-        borderRadius: 4,
-        paddingBottom: 3,
+    date: {
+        fontSize: 12,
+        color: colors.textSecondary,
+    },
+    text: {
+        fontSize: 15,
+        color: colors.text,
+    },
+    footer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    actions: {
+        flexDirection: 'row',
+        marginLeft: -8,
     },
 });

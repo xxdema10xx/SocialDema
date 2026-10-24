@@ -1,16 +1,19 @@
 import {StatusBar} from 'expo-status-bar';
-import {StyleSheet, Text, View, TouchableOpacity, FlatList, Button} from 'react-native';
+import {StyleSheet, Text, View, FlatList} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useState} from 'react';
 import axios from 'axios';
 import InputAndButton from './InputAndButton';
 import Message from './Message';
+import AppButton from './AppButton';
+import {colors} from './theme';
 
 // Mac (MAMP)
 // const MESSAGES_URL = 'http://10.10.52.212:8888/API/messages.php';
 // Windows (Laragon)
 const MESSAGES_URL = 'http://192.168.1.38/SocialDema/API/messages.php';
 
-export default function HomeScreen() {
+export default function HomeScreen({token, onLogout}) {
   const [messages, setMessages] = useState([{
     id: 1,
     text: 'Ciao',
@@ -59,7 +62,6 @@ export default function HomeScreen() {
 
   async function loadPosts() {
     try {
-      const token = process.env.EXPO_PUBLIC_API_TOKEN;
       const response = await axios.get(MESSAGES_URL, {
         headers: token ? {Authorization: 'Bearer ' + token} : {},
       });
@@ -83,91 +85,78 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View>
-        <Text style={styles.textContainer}>Social Network X</Text>
-        <Text style={styles.textDeveloper}>Powered by Damiano</Text>
-      </View>
-
-      <View style={styles.userRow}>
-        <Text style={styles.textUser}>Utente: Dema</Text>
-        <View style={styles.textContainer}>
-          <Button style={styles.button} onPress={loadPosts} title="Scarica" />
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>SocialDema</Text>
+          <Text style={styles.textUser}>Utente: Dema</Text>
         </View>
-
-        <View style={styles.logoutButtonWrapper}>
-          <TouchableOpacity style={styles.logoutButton} activeOpacity={0.8} onPress={() => {}}>
-            <Text style={styles.logoutButtonText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
+        <AppButton title="Logout" variant="outline" onPress={onLogout} />
       </View>
 
-      <View style={{alignSelf: 'stretch'}}>
-        <InputAndButton buttonLabel="Invia" inputLabel="Scrivi qualcosa.." postButton={handlePost} />
+      <InputAndButton buttonLabel="Invia" inputLabel="Scrivi qualcosa.." postButton={handlePost} />
+
+      <View style={styles.feedHeader}>
+        <Text style={styles.feedTitle}>Messaggi</Text>
+        <AppButton title="Scarica" variant="text" onPress={loadPosts} />
       </View>
 
-      <View style={{alignSelf: 'stretch', flex: 1}}>
-        <FlatList
-          data={messages}
-          keyExtractor={item => String(item.id)}
-          renderItem={({item}) => (
-            <Message
-              id={item.id}
-              username={item.name}
-              messageText={item.text}
-              timeStamp={item.date}
-              editButton="Modifica"
-              deleteButton="Elimina"
-              onDelete={() => handleDelete(item.id)}
-            />
-          )}
-        />
-      </View>
+      <FlatList
+        style={styles.list}
+        data={messages}
+        keyExtractor={item => String(item.id)}
+        renderItem={({item}) => (
+          <Message
+            id={item.id}
+            username={item.name}
+            messageText={item.text}
+            timeStamp={item.date}
+            editButton="Modifica"
+            deleteButton="Elimina"
+            onDelete={() => handleDelete(item.id)}
+          />
+        )}
+      />
 
-      <StatusBar style="auto" />
-    </View>
+      <StatusBar style="dark" />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'lightblue',
+    backgroundColor: colors.background,
+    paddingHorizontal: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingVertical: 12,
   },
-  textContainer: {
-    fontSize: 38,
-    color: 'black',
-    fontWeight: '500',
-  },
-  textDeveloper: {
-    color: 'black',
-    fontSize: 20,
-    textAlign: 'left',
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.primary,
   },
   textUser: {
-    color: 'grey',
-    fontSize: 20,
-    textAlign: 'left',
+    fontSize: 14,
+    color: colors.textSecondary,
   },
-  userRow: {
+  feedHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 16,
+    marginBottom: 8,
   },
-  logoutButtonWrapper: {
-    marginLeft: 110,
+  feedTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
   },
-  logoutButton: {
-    backgroundColor: '#dc3545',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  logoutButtonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
+  list: {
+    flex: 1,
   },
 });

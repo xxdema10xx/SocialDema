@@ -1,6 +1,9 @@
-import {View, TextInput, Button, StyleSheet} from 'react-native';
+import {View, TextInput, StyleSheet} from 'react-native';
 import React from "react";
 import { useState } from "react";
+import AppButton from './AppButton';
+import {colors, cardShadow} from './theme';
+
 export default function InputAndButton({inputLabel, buttonLabel, postButton}) {
     const [userText, setUserText] = useState('');
 
@@ -12,31 +15,33 @@ export default function InputAndButton({inputLabel, buttonLabel, postButton}) {
     };
 
     return (
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <View style={{width: '100%', paddingHorizontal: 8}}>
-                <TextInput placeholder={inputLabel} style={styles.textInput} value={userText} onChangeText={setUserText} />
-                <Button style={styles.buttonInvia} title={buttonLabel} onPress={handleSend} />
-            </View>
+        <View style={styles.container}>
+            <TextInput
+                placeholder={inputLabel}
+                placeholderTextColor={colors.textSecondary}
+                style={styles.textInput}
+                value={userText}
+                onChangeText={setUserText}
+            />
+            <AppButton title={buttonLabel} onPress={handleSend} />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    textInput: {
-        backgroundColor: 'white',
-        padding: 8,
-        borderWidth: 3,
-        borderColor: 'lightblue',
-        borderRadius: 4,
-        marginBottom: 3,
-        margin: 8,
+    container: {
+        backgroundColor: colors.card,
+        borderRadius: 12,
+        padding: 12,
+        gap: 8,
+        ...cardShadow,
     },
-    buttonInvia: {
-        width: '100%',
-        padding: 8,
-        borderWidth: 3,
-        borderColor: 'lightblue',
-        borderRadius: 4,
-        marginBottom: 3,
-    }
+    textInput: {
+        backgroundColor: colors.background,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 8,
+        padding: 10,
+        color: colors.text,
+    },
 });
