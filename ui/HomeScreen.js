@@ -45,6 +45,12 @@ export default function HomeScreen({token, onLogout}) {
     setMessages(prev => prev.filter(message => message.id !== id));
   }
 
+  function handleEdit(id, newText) {
+    setMessages(prev => prev.map(message =>
+      message.id === id ? {...message, text: newText} : message
+    ));
+  }
+
   function handlePost(textInput) {
     if (!textInput || !textInput.trim()) return;
 
@@ -114,6 +120,7 @@ export default function HomeScreen({token, onLogout}) {
             editButton="Modifica"
             deleteButton="Elimina"
             onDelete={() => handleDelete(item.id)}
+            onEdit={newText => handleEdit(item.id, newText)}
           />
         )}
       />
