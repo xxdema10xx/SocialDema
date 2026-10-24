@@ -4,18 +4,12 @@ import AppButton from './AppButton';
 import {colors, cardShadow} from './theme';
 
 export default function Message({username, messageText, timeStamp, editButton, deleteButton, onDelete, onEdit}) {
-    const dateObj = timeStamp instanceof Date ? timeStamp : new Date(timeStamp > 1e12 ? timeStamp : timeStamp * 1000);
+    const dateObj = new Date(timeStamp * 1000);
     const [isEditing, setIsEditing] = useState(false);
-    const [draft, setDraft] = useState(messageText);
-
-    function startEdit() {
-        setDraft(messageText);
-        setIsEditing(true);
-    }
+    const [editedText, setEditedText] = useState(messageText);
 
     function saveEdit() {
-        if (!draft.trim()) return;
-        onEdit && onEdit(draft.trim());
+        onEdit(editedText);
         setIsEditing(false);
     }
 
@@ -26,8 +20,8 @@ export default function Message({username, messageText, timeStamp, editButton, d
             {isEditing ? (
                 <TextInput
                     style={styles.input}
-                    value={draft}
-                    onChangeText={setDraft}
+                    value={editedText}
+                    onChangeText={setEditedText}
                     multiline
                     autoFocus
                 />
@@ -44,8 +38,8 @@ export default function Message({username, messageText, timeStamp, editButton, d
                         </>
                     ) : (
                         <>
-                            <AppButton title={editButton} variant="text" onPress={startEdit} />
-                            <AppButton title={deleteButton} variant="danger" onPress={() => onDelete && onDelete()} />
+                            <AppButton title={editButton} variant="text" onPress={() => setIsEditing(true)} />
+                            <AppButton title={deleteButton} variant="danger" onPress={onDelete} />
                         </>
                     )}
                 </View>

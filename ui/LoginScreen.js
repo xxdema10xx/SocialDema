@@ -8,7 +8,6 @@ import {colors, cardShadow} from './theme';
 export default function LoginScreen({onLogin}) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
 
     // Mac (MAMP)
     // const LOGIN_URL = "http://10.10.52.212:8888/API/login.php";
@@ -17,18 +16,21 @@ export default function LoginScreen({onLogin}) {
 
     function handleLogin() {
         axios
-            .post(LOGIN_URL, { username: username, password: password})
+            .post(LOGIN_URL, {username: username, password: password})
             .then((response) => {
-                setError('');
+                // l'api risponde con il token se il login è giusto
                 onLogin(response.data.token);
             })
-            .catch((err) => {
-                setError(err.response?.data?.Error ?? 'Impossibile contattare il server');
-            })
-            .finally(() => {
-                console.log("Request completed");
+            .catch((error) => {
+                // l'api risponde con un errore se username o password sono sbagliati
+                if (error.response) {
+                    alert(error.response.data.Error);
+                } else {
+                    alert('Impossibile contattare il server');
+                }
             });
     }
+
     return(
         <SafeAreaView style={styles.loginContainer}>
             <Text style={styles.title}>SocialDema</Text>
@@ -50,7 +52,6 @@ export default function LoginScreen({onLogin}) {
                     secureTextEntry
                     style={styles.input}
                 />
-                {error ? <Text style={styles.error}>{error}</Text> : null}
                 <AppButton title="Login" onPress={handleLogin} />
             </View>
         </SafeAreaView>
@@ -80,10 +81,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.card,
         borderRadius: 12,
         ...cardShadow,
-    },
-    error: {
-        color: colors.danger,
-        marginBottom: 10,
     },
     input: {
         backgroundColor: colors.background,

@@ -51,39 +51,27 @@ export default function HomeScreen({token, onLogout}) {
     ));
   }
 
-  function handlePost(textInput) {
-    if (!textInput || !textInput.trim()) return;
-
-    setMessages(prev => {
-      const nextId = Math.max(...prev.map(message => message.id)) + 1;
-      const newMessage = {
-        id: nextId,
-        name: 'Dema',
-        text: textInput.trim(),
-        date: Date.now()
-      };
-      return [newMessage, ...prev];
-    });
+  function handlePost(text) {
+    const newMessage = {
+      id: Date.now(),
+      name: 'Dema',
+      text: text,
+      date: Math.floor(Date.now() / 1000)
+    };
+    setMessages(prev => [newMessage, ...prev]);
   }
 
   async function loadPosts() {
     try {
       const response = await axios.get(MESSAGES_URL, {
-        headers: token ? {Authorization: 'Bearer ' + token} : {},
+        headers: {Authorization: 'Bearer ' + token},
       });
-      const apiMessages = Array.isArray(response.data)
-        ? response.data
-        : response.data.items;
 
-      if (!Array.isArray(apiMessages)) {
-        throw new Error("La risposta dell'API non contiene una lista di messaggi");
-      }
-
-      setMessages(apiMessages.map(message => ({
+      setMessages(response.data.items.map(message => ({
         id: message.id,
-        name: message.name ?? message.username ?? 'Utente',
-        text: message.text ?? message.content ?? message.message ?? '',
-        date: message.date ?? message.creation_date ?? message.created_at ?? Date.now(),
+        name: message.username,
+        text: message.content,
+        date: message.creation_date,
       })));
     } catch (error) {
       console.error('Errore durante il caricamento dei messaggi:', error);

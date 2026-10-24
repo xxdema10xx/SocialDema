@@ -1,6 +1,5 @@
 import {View, TextInput, StyleSheet} from 'react-native';
-import React from "react";
-import { useState } from "react";
+import {useState} from "react";
 import AppButton from './AppButton';
 import {colors, cardShadow} from './theme';
 
@@ -8,7 +7,7 @@ export default function InputAndButton({inputLabel, buttonLabel, postButton}) {
     const [userText, setUserText] = useState('');
 
     const handleSend = () => {
-        if (postButton && userText.trim()) {
+        if (userText.trim()) {
             postButton(userText.trim());
             setUserText('');
         }
