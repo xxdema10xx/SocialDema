@@ -1,72 +1,67 @@
 # SocialDema
 
-## Stato del problema da verificare
+App React Native (Expo SDK 58) che si collega a un backend PHP (cartella `API/`, database MySQL `itsumbria_coding`). Progetto di corso ITS: il codice deve restare semplice e vicino a quello mostrato dal prof (`useState`, `useEffect`, `SecureStore`).
 
-L'applicazione restituisce più volte:
+## Come funziona
 
-```text
-AxiosError: Request failed with status code 401
-```
+- `App.js` tiene lo stato `token`. All'avvio legge il token da `SecureStore` (`useEffect`). Se c'è mostra `HomeScreen`, altrimenti `LoginScreen`.
+- `save` e `getValueFor` sono le funzioni dell'esempio del prof. `handleLogin` salva il token, `handleLogout` lo cancella.
+- `ui/LoginScreen.js` fa la POST a `login.php`. Se va bene chiama `onLogin(response.data.token)`, altrimenti mostra un `alert` con l'errore del server.
+- `ui/HomeScreen.js` riceve `token` e `onLogout`:
+  - **Scarica** (`loadPosts`): GET a `messages.php` con `Authorization: Bearer <token>`. Se la risposta non contiene `items` mostra un `alert` con quello che è arrivato.
+  - **Invia** (`handlePost`): POST a `create_message.php` con `{user_message: testo}`, poi ricarica la lista.
+  - **Elimina** (`handleDelete`): POST a `delete_message.php` con `{post_id: id}`, poi ricarica la lista (cancellazione "soft": scrive `deletion_date`, e si possono eliminare solo i propri messaggi).
+  - **Modifica** (`handleEdit`): funziona solo nello stato locale. Sul server non esiste un endpoint di modifica, e premendo Scarica la modifica sparisce.
+- `ui/Message.js` è la card del messaggio (nome, `#id`, testo, Modifica/Elimina in basso a sinistra, data in basso a destra).
+- `ui/theme.js` (palette indaco) e `ui/AppButton.js` (pulsante con varianti `primary`, `outline`, `text`, `danger`) sono usati in tutte le schermate.
 
-Il problema più probabile è l'autenticazione tra app React Native e API PHP:
-
-1. `API/login.php` restituisce un token solo quando username e password sono corretti.
-2. La schermata `ui/LoginScreen.js` al momento stampa la risposta, ma non salva il token ricevuto e non lo passa alla schermata principale.
-3. `ui/HomeScreen.js` prova a leggere `EXPO_PUBLIC_API_TOKEN`. Se la variabile non è configurata oppure contiene un token scaduto/errato, `messages.php` riceve una richiesta senza un token valido e risponde `401`.
-4. Il token deve essere inviato nell'header HTTP esatto:
-
-   ```http
-   Authorization: Bearer <token>
-   ```
-
-Nella prossima sessione verificare quindi il flusso completo: login riuscito, salvataggio del token, invio del token a `messages.php` e validazione PHP. È preferibile usare `expo-secure-store` invece di una variabile pubblica nell'ambiente dell'app.
-
-## Avvio su Windows
-
-Installare Node.js e Git, poi eseguire dalla cartella `SocialDema`:
+## Avvio
 
 ```powershell
 npm install
-npx expo start
+npx expo start -c
 ```
 
-La repository si può clonare normalmente; `node_modules` non deve essere copiato o committato.
+Expo Go sul telefono deve supportare SDK 58. Telefono e PC devono stare nella stessa rete.
 
-## Controlli di rete
+## Indirizzi del backend
 
-Gli endpoint attuali usano l'indirizzo:
+Gli URL sono scritti direttamente in `ui/LoginScreen.js` (`LOGIN_URL`) e in `ui/HomeScreen.js` (`MESSAGES_URL`, `CREATE_URL`, `DELETE_URL`). Ora puntano a Laragon su Windows:
 
 ```text
-http://10.10.52.212:8888/API/
+http://192.168.1.38/SocialDema/API/
 ```
 
-Il dispositivo Windows o il telefono devono:
+Se l'IP del PC cambia (rete di casa/scuola), va aggiornato in tutti e quattro i punti. Per il Mac (MAMP) c'è l'indirizzo `http://10.10.52.212:8888/API/` lasciato come commento in `LoginScreen` e `MESSAGES_URL`; `CREATE_URL` e `DELETE_URL` non hanno la versione Mac.
 
-- essere nella stessa rete del computer che esegue il server PHP;
-- poter raggiungere `10.10.52.212`;
-- avere il backend avviato sulla porta `8888`;
-- usare l'IP corretto se la rete assegna un nuovo indirizzo al server.
+## Note sul backend PHP
 
-Se l'indirizzo non è raggiungibile, il problema normalmente appare come errore di rete o timeout, non come `401`.
+- Il token è `base64(json) . hmac_sha256`, chiave `miki1234`, scade dopo un'ora, ma `validateToken` non controlla la scadenza.
+- Il telefono manda l'header in minuscolo (`authorization`) e `getallheaders()` distingue le maiuscole: per questo `messages.php`, `create_message.php` e `delete_message.php` ora usano `array_change_key_case(getallheaders(), CASE_LOWER)`. **`user_info.php` ha ancora il problema** (non è usato dall'app).
+- Senza header `Authorization` PHP stampa un avviso HTML prima del JSON, quindi axios riceve testo e non un oggetto.
+- `messages.php` restituisce 10 messaggi per pagina (`?page=N`), solo quelli con `deletion_date` NULL, dal più recente. L'app scarica sempre la pagina 1.
+- Gli errori di login arrivano come HTTP 401 (password) o 404 (username) con il campo `Error`.
 
-## Controlli backend
+## Da fare / idee
 
-Verificare che:
+- Modifica: manca `update_message.php`; poi collegare `handleEdit`.
+- Scaricare i messaggi in automatico all'avvio (`useEffect` in `HomeScreen`), come fa il progetto di riferimento di Giorgia.
+- Gestire il token scaduto: se `messages.php` risponde `Invalid Token`, chiamare `onLogout()`.
+- Paginazione (`?page=`) per vedere più di 10 messaggi.
+- Togliere i 5 messaggi finti con cui parte `HomeScreen` e il nome fisso `Utente: Dema` nell'intestazione (si può usare `user_info.php`).
+- Mettere gli URL in un solo file (`config.js` con `API_URL`).
+- Rimettere uno stato `loading` in `App.js` se dà fastidio il lampo del login all'avvio (è stato tolto perché il prof non lo ha fatto fare).
 
-- `API/login.php` usi il database corretto e trovi l'utente;
-- username e password siano valide;
-- `API/functions.php` usi la stessa chiave per generare e validare il token;
-- il token non sia scaduto;
-- il server PHP esponga correttamente l'header `Authorization`.
+## Riassunto per la prossima sessione
 
-Per diagnosticare una risposta, controllare anche il corpo JSON restituito dall'API: può contenere `No Token Provided` oppure `Invalid Token`.
+Lavoro fatto in questa sessione:
 
-## Prossimi passi consigliati
+1. Aggiornato Expo da SDK 54 a 58 (`expo`, `react`, `react-native`, `expo-secure-store`, `expo-status-bar`, nuovo `expo-splash-screen`). Rimossi da `app.json` `newArchEnabled` e `android.edgeToEdgeEnabled`; lo splash ora è un plugin.
+2. Login collegato alla home con `useState` + `useEffect` + `SecureStore` (nomi dell'esempio del prof). Confrontato con il repo di Giorgia (`GiorgiaMilazzo/EsameReactNative`): struttura molto simile; `handleLogin` e l'`alert` degli errori sono scritti come il suo `Login.js`.
+3. Nuova interfaccia: palette indaco, card per i messaggi, `SafeAreaView` (`react-native-safe-area-context`), pulsante `AppButton`.
+4. Aggiunta la modifica dei messaggi (locale).
+5. Codice semplificato (`loadPosts` usa direttamente i campi `items`, `username`, `content`, `creation_date`).
+6. Risolto "Cannot read property 'map' of undefined" al Scarica: era l'header `Authorization` in minuscolo, sistemato nei PHP.
+7. Invia ed Elimina collegati al database; l'id del messaggio è visibile nella card.
 
-1. Modificare `LoginScreen` per chiamare una callback dopo il login e consegnarle `response.data.token`.
-2. Salvare il token con `SecureStore.setItemAsync`.
-3. Leggere il token all'avvio dell'app e usarlo in `HomeScreen`.
-4. Inviare sempre `Authorization: Bearer <token>` alle API protette.
-5. Eliminare il token al logout.
-6. Aggiungere un messaggio visibile per credenziali errate o token scaduto.
-
+Preferenze emerse dall'utente: spiegare il piano prima di modificare, codice semplice da capire (poche righe, niente controlli superflui), nomi come nell'esempio del prof, commit e push solo quando lo chiede, messaggi e risposte in italiano. `.idea/` resta non tracciata di proposito (cartella di PhpStorm). Python non è installato su questo PC: per le modifiche ai file usare gli strumenti Edit/Write.
