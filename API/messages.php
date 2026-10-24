@@ -3,12 +3,12 @@ require 'functions.php';
 require_once '../DbConnector.php';
 $dbConnector = new DbConnector ('localhost', 'root', 'root', 'itsumbria_coding');
 
-$headers = getallheaders();
+$headers = array_change_key_case(getallheaders(), CASE_LOWER);
 
 //error_log(print_r($headers, true));
 
-if ($headers['Authorization']) {
-    $token = explode(' ', $headers['Authorization'])[1];
+if ($headers['authorization']) {
+    $token = explode(' ', $headers['authorization'])[1];
     $userId = validateToken($token, 'miki1234');
     if ($userId === false){
         echo json_encode(["Error" => "Invalid Token"]);

@@ -12,6 +12,8 @@ import {colors} from './theme';
 // const MESSAGES_URL = 'http://10.10.52.212:8888/API/messages.php';
 // Windows (Laragon)
 const MESSAGES_URL = 'http://192.168.1.38/SocialDema/API/messages.php';
+const CREATE_URL = 'http://192.168.1.38/SocialDema/API/create_message.php';
+const DELETE_URL = 'http://192.168.1.38/SocialDema/API/delete_message.php';
 
 export default function HomeScreen({token, onLogout}) {
   const [messages, setMessages] = useState([{
@@ -42,7 +44,18 @@ export default function HomeScreen({token, onLogout}) {
   }]);
 
   function handleDelete(id) {
-    setMessages(prev => prev.filter(message => message.id !== id));
+    axios
+      .post(DELETE_URL, {post_id: id}, {
+        headers: {Authorization: 'Bearer ' + token},
+      })
+      .then(() => {
+        // il messaggio è stato eliminato dal database: ricarico la lista
+        loadPosts();
+      })
+      .catch((error) => {
+        alert('Impossibile eliminare il messaggio');
+        console.error(error);
+      });
   }
 
   function handleEdit(id, newText) {
@@ -52,13 +65,18 @@ export default function HomeScreen({token, onLogout}) {
   }
 
   function handlePost(text) {
-    const newMessage = {
-      id: Date.now(),
-      name: 'Dema',
-      text: text,
-      date: Math.floor(Date.now() / 1000)
-    };
-    setMessages(prev => [newMessage, ...prev]);
+    axios
+      .post(CREATE_URL, {user_message: text}, {
+        headers: {Authorization: 'Bearer ' + token},
+      })
+      .then(() => {
+        // il messaggio è nel database: ricarico la lista
+        loadPosts();
+      })
+      .catch((error) => {
+        alert('Impossibile inviare il messaggio');
+        console.error(error);
+      });
   }
 
   async function loadPosts() {
@@ -66,6 +84,12 @@ export default function HomeScreen({token, onLogout}) {
       const response = await axios.get(MESSAGES_URL, {
         headers: {Authorization: 'Bearer ' + token},
       });
+
+      // se il token manca o non è valido l'api non risponde con items
+      if (!response.data.items) {
+        alert('Risposta non valida: ' + JSON.stringify(response.data).slice(0, 300));
+        return;
+      }
 
       setMessages(response.data.items.map(message => ({
         id: message.id,

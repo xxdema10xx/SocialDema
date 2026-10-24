@@ -3,7 +3,7 @@ import {View, Text, TextInput, StyleSheet} from 'react-native';
 import AppButton from './AppButton';
 import {colors, cardShadow} from './theme';
 
-export default function Message({username, messageText, timeStamp, editButton, deleteButton, onDelete, onEdit}) {
+export default function Message({id, username, messageText, timeStamp, editButton, deleteButton, onDelete, onEdit}) {
     const dateObj = new Date(timeStamp * 1000);
     const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedText] = useState(messageText);
@@ -15,7 +15,7 @@ export default function Message({username, messageText, timeStamp, editButton, d
 
     return (
         <View style={styles.card}>
-            <Text style={styles.username}>{username}</Text>
+            <Text style={styles.username}>{username} · #{id}</Text>
 
             {isEditing ? (
                 <TextInput

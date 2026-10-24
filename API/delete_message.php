@@ -2,18 +2,18 @@
 require_once '../DbConnector.php';
 require 'functions.php';
 
-$headers = getallheaders();
-if ($headers['Authorization']) {
-    $token = explode(' ', $headers['Authorization'])[1];
+$headers = array_change_key_case(getallheaders(), CASE_LOWER);
+if ($headers['authorization']) {
+    $token = explode(' ', $headers['authorization'])[1];
     $userId = validateToken($token, 'miki1234');
     if ($userId === false){
-        header('Current-Type: application/json; charset=UTF-8');
-        json_encode(["Error" => "Invalid Token"]);
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(["Error" => "Invalid Token"]);
         exit;
     }
 } else {
-    header('Current-Type: application/json; charset=UTF-8');
-    json_encode(["Error" => "No Token Provided"]);
+    header('Content-Type: application/json; charset=UTF-8');
+    echo json_encode(["Error" => "No Token Provided"]);
     exit;
 }
 
