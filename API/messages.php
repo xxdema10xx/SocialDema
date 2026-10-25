@@ -1,32 +1,42 @@
 <?php
-require 'functions.php';
+// carico la classe dei token e la connessione al database
+require_once 'tokenManager.php';
 require_once '../DbConnector.php';
 $dbConnector = new DbConnector ('localhost', 'root', 'root', 'itsumbria_coding');
 
+// leggo gli header della richiesta (in minuscolo così "Authorization" e "authorization" sono uguali)
 $headers = array_change_key_case(getallheaders(), CASE_LOWER);
 
 //error_log(print_r($headers, true));
 
 if ($headers['authorization']) {
+    // l'header è "Bearer <token>": prendo solo la seconda parte
     $token = explode(' ', $headers['authorization'])[1];
-    $userId = validateToken($token, 'miki1234');
-    if ($userId === false){
+    $tokenManager = new TokenManager();
+    // se la firma non torna o il token è scaduto mi fermo qui
+    if (!$tokenManager->validate($token)) {
         echo json_encode(["Error" => "Invalid Token"]);
         exit;
     }
+    // il token è valido: ricavo l'id dell'utente che sta facendo la richiesta
+    $userId = $tokenManager->extractID($token);
 } else {
      echo json_encode(["Error" => "No Token Provided"]);
     exit;
 }
 
+// paginazione: leggo il numero di pagina dall'url (?page=2), se manca o non è valido uso la pagina 1
 if(isset($_GET["page"]) && is_numeric($_GET["page"]) && $_GET["page"] >= 1) {
     $page = $_GET["page"];
 } else {
     $page = 1;
 }
 
+// 10 messaggi per pagina, start_from = da quale messaggio iniziare
 $limit =10;
 $start_from = ($page-1) * $limit;
+
+// prendo i messaggi non eliminati (deletion_date vuota) con il nome di chi li ha scritti, dal più recente
 
 $statement = $dbConnector->prepare('SELECT *, posts.id as post_id FROM posts JOIN users ON posts.user_id = users.id WHERE posts.deletion_date is NULL order by posts.creation_date DESC LIMIT :start_from,:limit;');
 $statement->bindParam(':start_from', $start_from, PDO::PARAM_INT);
@@ -34,10 +44,12 @@ $statement->bindParam(':limit', $limit, PDO::PARAM_INT);
 $statement->execute();
 $results = $statement->fetchAll(PDO::FETCH_ASSOC);
 
+// conto quanti messaggi ci sono in totale (serve per sapere quante pagine esistono)
 $stmt = $dbConnector->prepare('SELECT COUNT(id) AS total_posts FROM posts WHERE posts.deletion_date is NULL');
 $stmt->execute();
 $total_posts = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// preparo solo i campi che servono all'app
 $print = [];
 
 foreach ($results as $row) {
@@ -50,6 +62,7 @@ foreach ($results as $row) {
     ];
 }
 
+// risposta finale: i messaggi (items) e le info sulla paginazione
 $data = [
     'items' => $print,
     'pagination' => [

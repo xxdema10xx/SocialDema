@@ -1,9 +1,10 @@
 import {Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {colors} from './theme';
 
 // variant: 'primary' (pieno), 'outline' (bordo), 'text' (solo testo), 'danger' (testo rosso)
+// bottone riutilizzabile: title = testo, onPress = cosa fare al tocco, style = stili extra (opzionale)
 export default function AppButton({title, onPress, variant = 'primary', style}) {
     return (
+        // styles[variant] sceglie lo stile in base alla variante, activeOpacity = trasparenza mentre lo premi
         <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPress}
@@ -14,6 +15,7 @@ export default function AppButton({title, onPress, variant = 'primary', style}) 
     );
 }
 
+// stili del bottone: base vale per tutte le varianti, le altre si aggiungono sopra
 const styles = StyleSheet.create({
     base: {
         paddingVertical: 10,
@@ -22,11 +24,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     primary: {
-        backgroundColor: colors.primary,
+        backgroundColor: '#4F46E5',
     },
     outline: {
         borderWidth: 1,
-        borderColor: colors.primary,
+        borderColor: '#4F46E5',
     },
     text: {
         paddingVertical: 4,
@@ -42,9 +44,10 @@ const styles = StyleSheet.create({
     },
 });
 
-const labelStyles = StyleSheet.create({
+// colore della scritta per ogni variante
+const labelStyles =StyleSheet.create({
     primary: {color: 'white'},
-    outline: {color: colors.primary},
-    text: {color: colors.primary},
-    danger: {color: colors.danger},
+    outline: {color: '#4F46E5'},
+    text: {color: '#4F46E5'},
+    danger: {color: '#DC2626'},
 });

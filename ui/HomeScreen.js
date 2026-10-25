@@ -6,7 +6,6 @@ import axios from 'axios';
 import InputAndButton from './InputAndButton';
 import Message from './Message';
 import AppButton from './AppButton';
-import {colors} from './theme';
 
 // Mac (MAMP)
 // const MESSAGES_URL = 'http://10.10.52.212:8888/API/messages.php';
@@ -14,8 +13,9 @@ import {colors} from './theme';
 const MESSAGES_URL = 'http://192.168.1.38/SocialDema/API/messages.php';
 const CREATE_URL = 'http://192.168.1.38/SocialDema/API/create_message.php';
 const DELETE_URL = 'http://192.168.1.38/SocialDema/API/delete_message.php';
-
+// schermata principale: token = serve per chiamare l'api, onLogout = funzione per uscire
 export default function HomeScreen({token, onLogout}) {
+  // lista dei messaggi mostrati, all'inizio ci sono quelli di prova
   const [messages, setMessages] = useState([{
     id: 1,
     text: 'Ciao',
@@ -43,14 +43,15 @@ export default function HomeScreen({token, onLogout}) {
     name: 'Marco'
   }]);
 
+  // chiedo all'api di eliminare il messaggio con quell'id
   function handleDelete(id) {
     axios
       .post(DELETE_URL, {post_id: id}, {
         headers: {Authorization: 'Bearer ' + token},
       })
       .then(() => {
-        // il messaggio è stato eliminato dal database: ricarico la lista
-        loadPosts();
+        // il messaggio è stato eliminato dal database: lo tolgo anche dalla lista che ho già
+        setMessages(prev => prev.filter(message => message.id !== id));
       })
       .catch((error) => {
         alert('Impossibile eliminare il messaggio');
@@ -58,20 +59,28 @@ export default function HomeScreen({token, onLogout}) {
       });
   }
 
+  // aggiorno il testo del messaggio solo nella lista dell'app (non nel database)
   function handleEdit(id, newText) {
     setMessages(prev => prev.map(message =>
       message.id === id ? {...message, text: newText} : message
     ));
   }
 
+  // mando il nuovo messaggio all'api, che lo salva nel database
   function handlePost(text) {
     axios
       .post(CREATE_URL, {user_message: text}, {
         headers: {Authorization: 'Bearer ' + token},
       })
-      .then(() => {
-        // il messaggio è nel database: ricarico la lista
-        loadPosts();
+      .then((response) => {
+        // il messaggio è nel database: lo aggiungo in fondo alla lista che ho già
+        // l'api non manda l'id del messaggio, uso il più alto che c'è già nella lista + 1 (se la lista è vuota parto da 1)
+        setMessages(prev => [...prev, {
+          id: prev.length ? Math.max(...prev.map(message => message.id)) + 1 : 1,
+          text: response.data.content,
+          date: response.data.creation_date,
+          name: response.data.username,
+        }]);
       })
       .catch((error) => {
         alert('Impossibile inviare il messaggio');
@@ -79,6 +88,7 @@ export default function HomeScreen({token, onLogout}) {
       });
   }
 
+  // scarico i messaggi dal database e li metto nella lista
   async function loadPosts() {
     try {
       const response = await axios.get(MESSAGES_URL, {
@@ -91,6 +101,7 @@ export default function HomeScreen({token, onLogout}) {
         return;
       }
 
+      // adatto i nomi dei campi dell'api a quelli usati dall'app
       setMessages(response.data.items.map(message => ({
         id: message.id,
         name: message.username,
@@ -116,12 +127,12 @@ export default function HomeScreen({token, onLogout}) {
 
       <View style={styles.feedHeader}>
         <Text style={styles.feedTitle}>Messaggi</Text>
-        <AppButton title="Scarica" variant="text" onPress={loadPosts} />
+        <AppButton title="Scarica" variant="text" onPress={() => {}} />
       </View>
 
       <FlatList
         style={styles.list}
-        data={messages}
+        data={[...messages].reverse()}
         keyExtractor={item => String(item.id)}
         renderItem={({item}) => (
           <Message
@@ -145,7 +156,7 @@ export default function HomeScreen({token, onLogout}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#F3F4F8',
     paddingHorizontal: 16,
   },
   header: {
@@ -157,11 +168,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: colors.primary,
+    color: '#4F46E5',
   },
   textUser: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: '#6B7280',
   },
   feedHeader: {
     flexDirection: 'row',
@@ -173,7 +184,7 @@ const styles = StyleSheet.create({
   feedTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
+    color: '#1F2937',
   },
   list: {
     flex: 1,
