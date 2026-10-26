@@ -1,4 +1,7 @@
 <?php
+// uso il fuso orario italiano: MySQL salva/legge i timestamp con questo fuso (SYSTEM), senza questo PHP li interpreta come UTC
+date_default_timezone_set('Europe/Rome');
+
 require_once '../DbConnector.php';
 require_once 'tokenManager.php';
 
