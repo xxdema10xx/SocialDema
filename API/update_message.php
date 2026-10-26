@@ -34,16 +34,16 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $roleStatement->bindParam(':user_id', $userId);
     $roleStatement->execute();
     $role = $roleStatement->fetchColumn();
-    $canEditAny = in_array($role, ['SuperAdmin', 'Moderatore']);
 
     // aggiorno il testo del messaggio (se non posso modificare tutto, solo se è mio)
-    $query = $canEditAny
-        ? 'UPDATE posts SET content = :content WHERE id = :id'
-        : 'UPDATE posts SET content = :content WHERE id = :id AND user_id = :user_id';
-    $statement = $dbConnector->prepare($query);
-    $statement->bindParam(':content', $postData['user_message']);
-    $statement->bindParam(':id', $postData['post_id']);
-    if (!$canEditAny) {
+    if ($role === 'SuperAdmin' || $role === 'Moderatore') {
+        $statement = $dbConnector->prepare('UPDATE posts SET content = :content WHERE id = :id');
+        $statement->bindParam(':content', $postData['user_message']);
+        $statement->bindParam(':id', $postData['post_id']);
+    } else {
+        $statement = $dbConnector->prepare('UPDATE posts SET content = :content WHERE id = :id AND user_id = :user_id');
+        $statement->bindParam(':content', $postData['user_message']);
+        $statement->bindParam(':id', $postData['post_id']);
         $statement->bindParam(':user_id', $userId);
     }
 

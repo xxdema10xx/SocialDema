@@ -35,15 +35,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $roleStatement->bindParam(':user_id', $userId);
     $roleStatement->execute();
     $role = $roleStatement->fetchColumn();
-    $canDeleteAny = ($role === 'SuperAdmin');
 
     // eliminazione "morbida": non cancello la riga, scrivo solo la data di eliminazione (se non sono admin, solo se il messaggio è mio)
-    $query = $canDeleteAny
-        ? 'UPDATE posts SET deletion_date = NOW() WHERE id = :id'
-        : 'UPDATE posts SET deletion_date = NOW() WHERE id = :id AND user_id = :user_id';
-    $statement = $dbConnector->prepare($query);
-    $statement->bindParam('id', $postData['post_id']);
-    if (!$canDeleteAny) {
+    if ($role === 'SuperAdmin') {
+        $statement = $dbConnector->prepare('UPDATE posts SET deletion_date = NOW() WHERE id = :id');
+        $statement->bindParam('id', $postData['post_id']);
+    } else {
+        $statement = $dbConnector->prepare('UPDATE posts SET deletion_date = NOW() WHERE id = :id AND user_id = :user_id');
+        $statement->bindParam('id', $postData['post_id']);
         $statement->bindParam('user_id', $userId);
     }
 
