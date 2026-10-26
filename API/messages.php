@@ -39,12 +39,6 @@ if(isset($_GET["page"]) && is_numeric($_GET["page"]) && $_GET["page"] >= 1) {
 $limit =10;
 $start_from = ($page-1) * $limit;
 
-// ruolo dell'utente che ha fatto la richiesta: serve al frontend per decidere quali bottoni mostrare
-$roleStatement = $dbConnector->prepare('SELECT role FROM users WHERE id = :userId;');
-$roleStatement->bindParam(':userId', $userId);
-$roleStatement->execute();
-$userRole = $roleStatement->fetchColumn();
-
 // prendo i messaggi non eliminati (deletion_date vuota) con il nome di chi li ha scritti, dal più recente
 
 $statement = $dbConnector->prepare('SELECT *, posts.id as post_id FROM posts JOIN users ON posts.user_id = users.id WHERE posts.deletion_date is NULL order by posts.creation_date DESC LIMIT :start_from,:limit;');
@@ -66,7 +60,7 @@ foreach ($results as $row) {
            'id' => $row['post_id'],
             'content' => $row['content'],
             'creation_date' => strtotime($row['creation_date']),
-            // (int) perché PDO lo restituirebbe come stringa, e confrontarlo con current_user.id nel frontend fallirebbe
+            // (int) perché PDO lo restituirebbe come stringa, e confrontarlo con user_id di user_info.php nel frontend fallirebbe
             'user_id' => (int)$row['user_id'],
             'username' => $row['username']
     ];
@@ -75,11 +69,6 @@ foreach ($results as $row) {
 // risposta finale: i messaggi (items) e le info sulla paginazione
 $data = [
     'items' => $print,
-    'current_user' => [
-        // (int) perché bindParam sopra lo ha convertito in stringa per riferimento
-        'id' => (int)$userId,
-        'role' => $userRole
-    ],
     'pagination' => [
         'current_page' => $page,
         'total_items' => $total_posts['total_posts'],

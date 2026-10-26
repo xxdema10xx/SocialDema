@@ -9,17 +9,25 @@ import AppButton from './AppButton';
 
 // Mac (MAMP)
 // const MESSAGES_URL = 'http://10.10.52.212:8888/API/messages.php';
+// Windows (Laragon, scuola)
+// const MESSAGES_URL = 'http://10.10.53.243/SocialDema/API/messages.php';
+// const CREATE_URL = 'http://10.10.53.243/SocialDema/API/create_message.php';
+// const DELETE_URL = 'http://10.10.53.243/SocialDema/API/delete_message.php';
+// const UPDATE_URL = 'http://10.10.53.243/SocialDema/API/update_message.php';
+// const USER_INFO_URL = 'http://10.10.53.243/SocialDema/API/user_info.php';
 // Windows (Laragon, PC casa)
-// const MESSAGES_URL = 'http://192.168.1.38/SocialDema/API/messages.php';
-// const CREATE_URL = 'http://192.168.1.38/SocialDema/API/create_message.php';
-// const DELETE_URL = 'http://192.168.1.38/SocialDema/API/delete_message.php';
-// Windows (Laragon, questo PC)
-const MESSAGES_URL = 'http://10.10.53.243/SocialDema/API/messages.php';
-const CREATE_URL = 'http://10.10.53.243/SocialDema/API/create_message.php';
-const DELETE_URL = 'http://10.10.53.243/SocialDema/API/delete_message.php';
-const UPDATE_URL = 'http://10.10.53.243/SocialDema/API/update_message.php';
+const MESSAGES_URL = 'http://192.168.1.38/SocialDema/API/messages.php';
+const CREATE_URL = 'http://192.168.1.38/SocialDema/API/create_message.php';
+const DELETE_URL = 'http://192.168.1.38/SocialDema/API/delete_message.php';
+const UPDATE_URL = 'http://192.168.1.38/SocialDema/API/update_message.php';
+const USER_INFO_URL = 'http://192.168.1.38/SocialDema/API/user_info.php';
 // schermata principale: token = serve per chiamare l'api, onLogout = funzione per uscire
 export default function HomeScreen({token, onLogout}) {
+  // chi sono io: li riempie user_info.php appena si entra
+  const [myUserId, setMyUserId] = useState(null);
+  const [myUsername, setMyUsername] = useState('');
+  const [myRole, setMyRole] = useState('');
+
   // lista dei messaggi mostrati, all'inizio ci sono quelli di prova
   const [messages, setMessages] = useState([
     /*
@@ -100,8 +108,7 @@ export default function HomeScreen({token, onLogout}) {
           text: response.data.content,
           date: response.data.creation_date,
           name: response.data.username,
-          canEdit: true,
-          canDelete: true,
+          userId: myUserId,
         }, ...prev]);
       })
       .catch((error) => {
@@ -123,31 +130,66 @@ export default function HomeScreen({token, onLogout}) {
         return;
       }
 
-      // chi sono io e che ruolo ho: serve per decidere se posso modificare/eliminare i post altrui
-      const myUserId = response.data.current_user?.id;
-      const myRole = response.data.current_user?.role;
-      const canEditAny = myRole === 'SuperAdmin' || myRole === 'Moderatore';
-      const canDeleteAny = myRole === 'SuperAdmin';
-
       // adatto i nomi dei campi dell'api a quelli usati dall'app
-      setMessages(response.data.items.map(message => {
-        const isMine = message.user_id === myUserId;
-        return {
-          id: message.id,
-          name: message.username,
-          text: message.content,
-          date: message.creation_date,
-          canEdit: isMine || canEditAny,
-          canDelete: isMine || canDeleteAny,
-        };
-      }));
+      setMessages(response.data.items.map(message => ({
+        id: message.id,
+        name: message.username,
+        text: message.content,
+        date: message.creation_date,
+        userId: message.user_id,
+      })));
     } catch (error) {
       console.error('Errore durante il caricamento dei messaggi:', error);
     }
   }
 
-  // appena si entra in HomeScreen (cioè subito dopo il login) carico i messaggi
+  // chiedo a user_info.php chi sono (id, nome e ruolo) e lo salvo negli stati
+  async function loadUser() {
+    try {
+      const response = await axios.get(USER_INFO_URL, {
+        headers: {Authorization: 'Bearer ' + token},
+      });
+
+      setMyUserId(response.data.user_id);
+      setMyUsername(response.data.username);
+      setMyRole(response.data.role);
+    } catch (error) {
+      console.error('Errore durante il caricamento dell\'utente:', error);
+    }
+  }
+
+  // posso modificare questo messaggio?
+  function canEditMessage(message) {
+    if (message.userId === myUserId) {
+      // il messaggio è mio
+      return true;
+    } else if (myRole === 'SuperAdmin') {
+      // il SuperAdmin fa tutto
+      return true;
+    } else if (myRole === 'Moderatore') {
+      // il Moderatore modifica i post degli altri
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // posso eliminare questo messaggio?
+  function canDeleteMessage(message) {
+    if (message.userId === myUserId) {
+      // il messaggio è mio
+      return true;
+    } else if (myRole === 'SuperAdmin') {
+      // solo il SuperAdmin elimina i post degli altri
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // appena si entra in HomeScreen (cioè subito dopo il login) carico chi sono e i messaggi
   useEffect(() => {
+    loadUser();
     loadPosts();
   }, []);
 
@@ -156,7 +198,7 @@ export default function HomeScreen({token, onLogout}) {
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>SocialDema</Text>
-          <Text style={styles.textUser}>Utente: Dema</Text>
+          <Text style={styles.textUser}>Utente: {myUsername}</Text>
         </View>
         <AppButton title="Logout" variant="outline" onPress={onLogout} />
       </View>
@@ -179,8 +221,8 @@ export default function HomeScreen({token, onLogout}) {
             timeStamp={item.date}
             editButton="Modifica"
             deleteButton="Elimina"
-            canEdit={item.canEdit}
-            canDelete={item.canDelete}
+            canEdit={canEditMessage(item)}
+            canDelete={canDeleteMessage(item)}
             onDelete={() => handleDelete(item.id)}
             onEdit={newText => handleEdit(item.id, newText)}
           />

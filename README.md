@@ -38,8 +38,8 @@ L'IP del PC di casa (`192.168.1.38`) e quello del Mac con MAMP (`10.10.52.212:88
 ## Note sul backend PHP
 
 - Il token lo gestisce la classe `API/tokenManager.php` (`TokenManager`): formato `firma.payload`, firma HMAC-SHA512 con chiave `abc123`, payload `{id, exp}` in base64, scade dopo 1 ora. `validate()` controlla firma e scadenza, `extractID()` ricava l'id utente.
-- `login.php`, `messages.php`, `create_message.php` e `delete_message.php` usano `TokenManager`. `API/functions.php` (vecchio formato `payload.firma`, chiave `miki1234`) serve ormai solo a `user_info.php`.
-- **`user_info.php` è rotto**: ha parentesi graffe sbilanciate, usa ancora il vecchio `validateToken` e legge l'header con la maiuscola. Non è usato dall'app e non è stato né commentato né sistemato.
+- Tutti gli endpoint (`login.php`, `messages.php`, `create_message.php`, `update_message.php`, `delete_message.php`, `user_info.php`) usano `TokenManager`. Il vecchio `functions.php` (formato `payload.firma`, chiave `miki1234`) è stato eliminato.
+- `user_info.php` è stato riscritto con `TokenManager`: restituisce `{user_id, username, role}`. `HomeScreen.js` lo chiama con `loadUser()` e salva id, nome e ruolo negli stati `myUserId`, `myUsername`, `myRole`; `canEditMessage` e `canDeleteMessage` decidono i bottoni. `messages.php` non manda più `current_user`.
 - Il telefono manda l'header in minuscolo (`authorization`) e `getallheaders()` distingue le maiuscole: per questo gli endpoint usano `array_change_key_case(getallheaders(), CASE_LOWER)`.
 - Senza header `Authorization` PHP stampa un avviso HTML prima del JSON, quindi axios riceve testo e non un oggetto.
 - `messages.php` restituisce 10 messaggi per pagina (`?page=N`), solo quelli con `deletion_date` NULL, dal più recente, di tutti gli utenti.
@@ -53,7 +53,6 @@ L'IP del PC di casa (`192.168.1.38`) e quello del Mac con MAMP (`10.10.52.212:88
 - Scaricare i messaggi dal database (pulsante "Scarica" ora vuoto, `loadPosts` inutilizzata).
 - Gestire il token scaduto: ora, con un token vecchio di più di un'ora, l'app entra comunque in home e le chiamate rispondono `Invalid Token` (rimedio manuale: Logout).
 - Paginazione (`?page=`) per vedere più di 10 messaggi.
-- Sistemare o eliminare `user_info.php` e `functions.php`, e togliere il nome fisso `Utente: Dema` nell'intestazione.
 - Mettere gli URL in un solo file (`config.js` con `API_URL`).
 
 ## Riassunto per la prossima sessione
