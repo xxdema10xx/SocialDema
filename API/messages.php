@@ -66,7 +66,7 @@ foreach ($results as $row) {
            'id' => $row['post_id'],
             'content' => $row['content'],
             'creation_date' => strtotime($row['creation_date']),
-            'user_id' => $row['user_id'],
+            'user_id' => (int)$row['user_id'],
             'username' => $row['username']
     ];
 }
@@ -75,7 +75,7 @@ foreach ($results as $row) {
 $data = [
     'items' => $print,
     'current_user' => [
-        'id' => $userId,
+        'id' => (int)$userId,
         'role' => $userRole
     ],
     'pagination' => [
