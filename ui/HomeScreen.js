@@ -9,39 +9,47 @@ import AppButton from './AppButton';
 
 // Mac (MAMP)
 // const MESSAGES_URL = 'http://10.10.52.212:8888/API/messages.php';
-// Windows (Laragon)
-const MESSAGES_URL = 'http://192.168.1.38/SocialDema/API/messages.php';
-const CREATE_URL = 'http://192.168.1.38/SocialDema/API/create_message.php';
-const DELETE_URL = 'http://192.168.1.38/SocialDema/API/delete_message.php';
+// Windows (Laragon, PC casa)
+// const MESSAGES_URL = 'http://192.168.1.38/SocialDema/API/messages.php';
+// const CREATE_URL = 'http://192.168.1.38/SocialDema/API/create_message.php';
+// const DELETE_URL = 'http://192.168.1.38/SocialDema/API/delete_message.php';
+// Windows (Laragon, questo PC)
+const MESSAGES_URL = 'http://10.10.53.243/SocialDema/API/messages.php';
+const CREATE_URL = 'http://10.10.53.243/SocialDema/API/create_message.php';
+const DELETE_URL = 'http://10.10.53.243/SocialDema/API/delete_message.php';
 // schermata principale: token = serve per chiamare l'api, onLogout = funzione per uscire
 export default function HomeScreen({token, onLogout}) {
   // lista dei messaggi mostrati, all'inizio ci sono quelli di prova
-  const [messages, setMessages] = useState([{
-    id: 1,
-    text: 'Ciao',
-    date: 1779981508,
-    name: 'Damiano'
-  }, {
-    id: 2,
-    text: 'Daje',
-    date: 1779981508,
-    name: 'Francesco'
-  }, {
-    id: 3,
-    text: 'NOOOOO!!!',
-    date: 1779981508,
-    name: 'Lorenzo'
-  }, {
-    id: 4,
-    text: 'Non SObri0!',
-    date: 1779981508,
-    name: 'Alberto'
-  }, {
-    id: 5,
-    text: 'Che magnata!',
-    date: 1779981508,
-    name: 'Marco'
-  }]);
+  const [messages, setMessages] = useState([
+    /*
+    {
+      id: 1,
+      text: 'Ciao',
+      date: 1779981508,
+      name: 'Damiano'
+    }, {
+      id: 2,
+      text: 'Daje',
+      date: 1779981508,
+      name: 'Francesco'
+    }, {
+      id: 3,
+      text: 'NOOOOO!!!',
+      date: 1779981508,
+      name: 'Lorenzo'
+    }, {
+      id: 4,
+      text: 'Non SObri0!',
+      date: 1779981508,
+      name: 'Alberto'
+    }, {
+      id: 5,
+      text: 'Che magnata!',
+      date: 1779981508,
+      name: 'Marco'
+    }
+    */
+  ]);
 
   // chiedo all'api di eliminare il messaggio con quell'id
   function handleDelete(id) {
@@ -127,7 +135,7 @@ export default function HomeScreen({token, onLogout}) {
 
       <View style={styles.feedHeader}>
         <Text style={styles.feedTitle}>Messaggi</Text>
-        <AppButton title="Scarica" variant="text" onPress={() => {}} />
+        <AppButton title="Scarica" variant="text" onPress={loadPosts} />
       </View>
 
       <FlatList

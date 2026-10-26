@@ -27,13 +27,13 @@ Expo Go sul telefono deve supportare SDK 58. Telefono e computer devono stare ne
 
 ## Indirizzi del backend
 
-Gli URL sono scritti direttamente in `ui/LoginScreen.js` (`LOGIN_URL`) e in `ui/HomeScreen.js` (`MESSAGES_URL`, `CREATE_URL`, `DELETE_URL`). Ora puntano a Laragon su Windows:
+Gli URL sono scritti direttamente in `ui/LoginScreen.js` (`LOGIN_URL`) e in `ui/HomeScreen.js` (`MESSAGES_URL`, `CREATE_URL`, `DELETE_URL`). Ora puntano a Laragon su questo PC Windows:
 
 ```text
-http://192.168.1.38/SocialDema/API/
+http://10.10.53.243/SocialDema/API/
 ```
 
-**Prossima sessione: si lavora su Mac con MAMP.** Va cambiato l'indirizzo in tutti e quattro i punti. Per il Mac c'è `http://10.10.52.212:8888/API/` lasciato come commento in `LoginScreen` e `MESSAGES_URL` (l'IP del Mac può essere cambiato: controllarlo). `CREATE_URL` e `DELETE_URL` non hanno la versione Mac, vanno scritte. In MAMP il progetto va messo nella cartella dei documenti di MAMP in modo che `API/` sia raggiungibile come sopra, con il database `itsumbria_coding` (utente `root`, password `root`, come in `DbConnector`).
+L'IP del PC di casa (`192.168.1.38`) e quello del Mac con MAMP (`10.10.52.212:8888`) sono rimasti come commenti sopra la riga attiva, in tutti e quattro i punti. Se si torna a lavorare su un altro PC o rete, va scommentato l'indirizzo giusto (o controllato il nuovo IP, che può cambiare) e commentato quello attivo ora. Laragon su questo PC ha come root una junction (`C:\laragon\www`) che punta a `C:\Users\DamianoDeMattei\PhpstormProjects`, quindi `SocialDema/API/` è raggiungibile direttamente.
 
 ## Note sul backend PHP
 
@@ -71,4 +71,4 @@ Lavoro fatto in questa sessione (commit `86838e0`, già in push su `main`):
 5. Home: messaggi di prova hardcodati rimessi, nuovi messaggi aggiunti alla lista locale senza ricaricare dal database, eliminazione che toglie dalla lista locale, ordine invertito (ultimo messaggio in cima), pulsante "Scarica" lasciato vuoto.
 6. Provati e poi annullati su richiesta: salvataggio della modifica nel database (`edit_message.php`, dava 401), controllo `isExpired` all'avvio, caricamento automatico all'apertura, scaricamento di tutte le pagine.
 
-Preferenze emerse dall'utente: spiegare il piano e chiedere consenso prima di modificare quando lo dice, codice semplice e "terra terra" da studente (poche righe, niente controlli superflui, commenti in italiano), nomi come nell'esempio del prof, commit e push solo quando lo chiede, risposte in italiano, e tornare indietro esattamente quando dice "ritorna a prima di X". `.idea/` resta non tracciata di proposito (cartella di PhpStorm). Python e PHP non sono installati sul PC Windows: per le modifiche ai file usare gli strumenti Edit/Write. La prossima sessione sarà su Mac con MAMP (vedi "Indirizzi del backend").
+Preferenze emerse dall'utente: spiegare il piano e chiedere consenso prima di modificare quando lo dice, codice semplice e "terra terra" da studente (poche righe, niente controlli superflui, commenti in italiano), nomi come nell'esempio del prof, commit e push solo quando lo chiede, risposte in italiano, e tornare indietro esattamente quando dice "ritorna a prima di X". `.idea/` resta non tracciata di proposito (cartella di PhpStorm). Python e PHP non sono installati sul PC Windows: per le modifiche ai file usare gli strumenti Edit/Write. Sessione attuale di nuovo su PC Windows (non più Mac/MAMP), con un IP diverso da quello usato in precedenza (vedi "Indirizzi del backend").
