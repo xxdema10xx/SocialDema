@@ -29,10 +29,23 @@ $postData = json_decode($json, true);
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $dbConnector = new DbConnector('localhost', 'root', 'root', 'itsumbria_coding');
-    // eliminazione "morbida": non cancello la riga, scrivo solo la data di eliminazione (solo se il messaggio è mio)
-    $statement = $dbConnector->prepare('UPDATE posts SET deletion_date = NOW() WHERE id = :id AND user_id = :user_id');
+
+    // controllo il ruolo: solo il SuperAdmin può eliminare i post di chiunque
+    $roleStatement = $dbConnector->prepare('SELECT role FROM users WHERE id = :user_id');
+    $roleStatement->bindParam(':user_id', $userId);
+    $roleStatement->execute();
+    $role = $roleStatement->fetchColumn();
+    $canDeleteAny = ($role === 'SuperAdmin');
+
+    // eliminazione "morbida": non cancello la riga, scrivo solo la data di eliminazione (se non sono admin, solo se il messaggio è mio)
+    $query = $canDeleteAny
+        ? 'UPDATE posts SET deletion_date = NOW() WHERE id = :id'
+        : 'UPDATE posts SET deletion_date = NOW() WHERE id = :id AND user_id = :user_id';
+    $statement = $dbConnector->prepare($query);
     $statement->bindParam('id', $postData['post_id']);
-    $statement->bindParam('user_id', $userId);
+    if (!$canDeleteAny) {
+        $statement->bindParam('user_id', $userId);
+    }
 
     if ($statement->execute()) {
         header('Content-Type: application/json; charset=UTF-8');
