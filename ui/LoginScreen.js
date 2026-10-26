@@ -4,8 +4,8 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import axios from "axios";
 import AppButton from './AppButton';
 
-// schermata di login: onLogin = funzione chiamata con il token quando il login va bene
-export default function LoginScreen({onLogin}) {
+// schermata di login: onLogin = funzione chiamata con il token quando il login va bene, onGoToRegister = passa alla schermata di registrazione
+export default function LoginScreen({onLogin, onGoToRegister}) {
     // quello che l'utente scrive nelle due caselle
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -66,6 +66,7 @@ export default function LoginScreen({onLogin}) {
                     style={styles.input}
                 />
                 <AppButton title="Login" onPress={handleLogin} />
+                <AppButton title="Non hai un account? Registrati" variant="text" onPress={onGoToRegister} />
             </View>
         </SafeAreaView>
     )

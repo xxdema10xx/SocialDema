@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import HomeScreen from './ui/HomeScreen';
 import LoginScreen from "./ui/LoginScreen";
+import RegisterScreen from "./ui/RegisterScreen";
 
 // salvo un valore nella memoria sicura del telefono
 // await = "aspetta che il salvataggio sia finito, poi vai avanti" (si usa solo dentro una funzione async)
@@ -18,6 +19,8 @@ async function getValueFor(key) {
 export default function App() {
   // se token è null l'utente non è autenticato
   const [token, setToken] = useState(null);
+  // quando non c'è token, decido se mostrare il login o la registrazione
+  const [authScreen, setAuthScreen] = useState('login');
 
   // all'avvio leggo il token salvato (se c'è)
   // [] = "non dipendo da niente, eseguimi solo una volta all'inizio"
@@ -42,15 +45,20 @@ export default function App() {
     return (
         <HomeScreen token={token} onLogout={handleLogout}></HomeScreen>
     );
-  } else {
-    // passo al login la funzione per "avvisare" App che il login è andato bene
+  } else if (authScreen === 'register') {
+    // passo alla registrazione le funzioni per tornare al login (con o senza successo)
     return (
-        <LoginScreen onLogin={handleLogin}></LoginScreen>
+        <RegisterScreen onRegistered={() => setAuthScreen('login')} onBackToLogin={() => setAuthScreen('login')}></RegisterScreen>
+    );
+  } else {
+    // passo al login la funzione per "avvisare" App che il login è andato bene e quella per passare alla registrazione
+    return (
+        <LoginScreen onLogin={handleLogin} onGoToRegister={() => setAuthScreen('register')}></LoginScreen>
     );
   }
 }
 
-// cosa succede all'avvio dell'app:
+// Cosa succede all'avvio dell'app:
 // 1. App parte con token = null, quindi disegna il login
 // 2. subito dopo useEffect legge la memoria del telefono
 // 3. se trova un token chiama setToken, App si ridisegna e mostra la home
