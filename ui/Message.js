@@ -3,7 +3,7 @@ import {View, Text, TextInput, StyleSheet} from 'react-native';
 import AppButton from './AppButton';
 
 // card di un singolo messaggio, con i bottoni per modificarlo ed eliminarlo
-export default function Message({id, username, messageText, timeStamp, editButton, deleteButton, onDelete, onEdit}) {
+export default function Message({id, username, messageText, timeStamp, editButton, deleteButton, canEdit, canDelete, onDelete, onEdit}) {
     // il database dà la data in secondi, JavaScript la vuole in millisecondi
     const dateObj = new Date(timeStamp * 1000);
     // isEditing = true quando sto modificando il testo, editedText = testo che sto scrivendo
@@ -34,6 +34,7 @@ export default function Message({id, username, messageText, timeStamp, editButto
             )}
 
             <View style={styles.footer}>
+                <Text style={styles.date}>{dateObj.toLocaleString()}</Text>
                 <View style={styles.actions}>
                     {/* durante la modifica: Salva e Annulla, altrimenti: Modifica ed Elimina */}
                     {isEditing ? (
@@ -43,12 +44,11 @@ export default function Message({id, username, messageText, timeStamp, editButto
                         </>
                     ) : (
                         <>
-                            <AppButton title={editButton} variant="text" onPress={() => setIsEditing(true)} />
-                            <AppButton title={deleteButton} variant="danger" onPress={onDelete} />
+                            {canEdit && <AppButton title={editButton} variant="text" onPress={() => setIsEditing(true)} />}
+                            {canDelete && <AppButton title={deleteButton} variant="danger" onPress={onDelete} />}
                         </>
                     )}
                 </View>
-                <Text style={styles.date}>{dateObj.toLocaleString()}</Text>
             </View>
         </View>
     )
@@ -90,13 +90,12 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         marginTop: 8,
     },
     actions: {
         flexDirection: 'row',
-        marginLeft: -8,
+        marginRight: -8,
+        marginTop: 4,
     },
 });
