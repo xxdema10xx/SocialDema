@@ -1,5 +1,5 @@
 import {StatusBar} from 'expo-status-bar';
-import {StyleSheet, Text, View, FlatList} from 'react-native';
+import {StyleSheet, Text, View, FlatList, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useState, useEffect} from 'react';
 import axios from 'axios';
@@ -63,7 +63,7 @@ export default function HomeScreen({token, onLogout}) {
         setMessages(prev => prev.filter(message => message.id !== id));
       })
       .catch((error) => {
-        alert('Impossibile eliminare il messaggio');
+        Alert.alert('Impossibile eliminare il messaggio');
         console.error(error);
       });
   }
@@ -81,7 +81,7 @@ export default function HomeScreen({token, onLogout}) {
         ));
       })
       .catch((error) => {
-        alert('Impossibile modificare il messaggio');
+        Alert.alert('Impossibile modificare il messaggio');
         console.error(error);
       });
   }
@@ -105,7 +105,7 @@ export default function HomeScreen({token, onLogout}) {
         }, ...prev]);
       })
       .catch((error) => {
-        alert('Impossibile inviare il messaggio');
+        Alert.alert('Impossibile inviare il messaggio');
         console.error(error);
       });
   }
@@ -119,7 +119,7 @@ export default function HomeScreen({token, onLogout}) {
 
       // se il token manca o non è valido l'api non risponde con items
       if (!response.data.items) {
-        alert('Risposta non valida: ' + JSON.stringify(response.data).slice(0, 300));
+        Alert.alert('Risposta non valida: ' + JSON.stringify(response.data).slice(0, 300));
         return;
       }
 

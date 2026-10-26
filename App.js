@@ -62,3 +62,4 @@ export default function App() {
 // 1. App parte con token = null, quindi disegna il login
 // 2. subito dopo useEffect legge la memoria del telefono
 // 3. se trova un token chiama setToken, App si ridisegna e mostra la home
+// 4. se l'utente non ha un account, da LoginScreen può passare a RegisterScreen (authScreen) e tornare indietro una volta registrato

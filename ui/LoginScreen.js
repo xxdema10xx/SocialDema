@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {View, Text, StyleSheet, TextInput} from 'react-native';
+import {View, Text, StyleSheet, TextInput, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import axios from "axios";
 import AppButton from './AppButton';
@@ -21,7 +21,7 @@ export default function LoginScreen({onLogin, onGoToRegister}) {
     function handleLogin() {
         // se manca qualcosa non chiamo nemmeno l'api
         if (!username || !password) {
-            alert('Inserisci username e password');
+            Alert.alert('Inserisci username e password');
             return;
         }
         axios
@@ -31,15 +31,15 @@ export default function LoginScreen({onLogin, onGoToRegister}) {
                 if (response.data.token) {
                     onLogin(response.data.token);
                 } else {
-                    alert('Risposta del server non valida');
+                    Alert.alert('Risposta del server non valida');
                 }
             })
             .catch((error) => {
                 // l'api risponde con un errore se username o password sono sbagliati
                 if (error.response) {
-                    alert(error.response.data.Error);
+                    Alert.alert(error.response.data.Error);
                 } else {
-                    alert('Impossibile contattare il server');
+                    Alert.alert('Impossibile contattare il server');
                 }
             });
     }

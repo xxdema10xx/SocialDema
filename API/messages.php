@@ -66,6 +66,7 @@ foreach ($results as $row) {
            'id' => $row['post_id'],
             'content' => $row['content'],
             'creation_date' => strtotime($row['creation_date']),
+            // (int) perché PDO lo restituirebbe come stringa, e confrontarlo con current_user.id nel frontend fallirebbe
             'user_id' => (int)$row['user_id'],
             'username' => $row['username']
     ];
@@ -75,6 +76,7 @@ foreach ($results as $row) {
 $data = [
     'items' => $print,
     'current_user' => [
+        // (int) perché bindParam sopra lo ha convertito in stringa per riferimento
         'id' => (int)$userId,
         'role' => $userRole
     ],

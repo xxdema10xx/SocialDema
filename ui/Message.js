@@ -3,6 +3,7 @@ import {View, Text, TextInput, StyleSheet} from 'react-native';
 import AppButton from './AppButton';
 
 // card di un singolo messaggio, con i bottoni per modificarlo ed eliminarlo
+// canEdit/canDelete = se mostrare o no i bottoni (li decide HomeScreen in base a chi sono e al mio ruolo)
 export default function Message({id, username, messageText, timeStamp, editButton, deleteButton, canEdit, canDelete, onDelete, onEdit}) {
     // il database dà la data in secondi, JavaScript la vuole in millisecondi
     const dateObj = new Date(timeStamp * 1000);

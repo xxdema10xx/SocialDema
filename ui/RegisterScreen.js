@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {View, Text, StyleSheet, TextInput} from 'react-native';
+import {View, Text, StyleSheet, TextInput, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import axios from "axios";
 import AppButton from './AppButton';
@@ -29,7 +29,7 @@ export default function RegisterScreen({onRegistered, onBackToLogin}) {
     function handleRegister() {
         // se manca qualcosa non chiamo nemmeno l'api
         if (!username || !password || !password2) {
-            alert('Inserisci username e password');
+            Alert.alert('Inserisci username e password');
             return;
         }
         axios
@@ -38,15 +38,15 @@ export default function RegisterScreen({onRegistered, onBackToLogin}) {
                 const errorCode = response.data.errorCode;
                 if (!errorCode) {
                     // registrazione andata bene: torno al login
-                    alert('Registrazione completata, ora puoi accedere');
+                    Alert.alert('Registrazione completata, ora puoi accedere');
                     onRegistered();
                 } else {
-                    alert(ERROR_MESSAGES[errorCode] || 'Errore durante la registrazione');
+                    Alert.alert(ERROR_MESSAGES[errorCode] || 'Errore durante la registrazione');
                 }
             })
             .catch((error) => {
                 console.error(error);
-                alert('Impossibile contattare il server');
+                Alert.alert('Impossibile contattare il server');
             });
     }
 

@@ -1,4 +1,6 @@
 <?php
+// endpoint vecchio, non usato dall'app (usa ancora validateToken di functions.php invece di TokenManager)
+// messages.php ora restituisce già current_user con id e ruolo, quindi questo file è di fatto superato
 require_once '../DbConnector.php';
 require 'functions.php';
 
