@@ -12,10 +12,10 @@ export default function LoginScreen({onLogin, onGoToRegister}) {
 
     // Mac (MAMP)
     // const LOGIN_URL = "http://10.10.52.212:8888/API/login.php";
+    // Windows (Laragon, scuola)
+    // const LOGIN_URL = "http://10.10.53.243/SocialDema/API/login.php";
     // Windows (Laragon, PC casa)
-    // const LOGIN_URL = "http://192.168.1.38/SocialDema/API/login.php";
-    // Windows (Laragon, questo PC)
-    const LOGIN_URL = "http://10.10.53.243/SocialDema/API/login.php";
+    const LOGIN_URL = "http://192.168.1.38/SocialDema/API/login.php";
 
     // mando username e password all'api
     function handleLogin() {
